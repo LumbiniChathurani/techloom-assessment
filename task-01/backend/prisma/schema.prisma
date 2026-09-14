@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderStatus {
+  PENDING
+  RESERVED
+  PAID
+  CANCELLED
+  EXPIRED
+  FAILED
+}
+
+model Product {
+  id        String   @id @default(uuid())
+  name      String
+  price     Int      // stored in cents to avoid floating point issues
+  stock     Int      // available (unreserved) stock
+  category  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderItems   OrderItem[]
+  reservations Reservation[]
+}
+
+model Order {
+  id             String      @id @default(uuid())
+  status         OrderStatus @default(PENDING)
+  idempotencyKey String?     @unique
+  totalPrice     Int
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  items        OrderItem[]
+  reservations Reservation[]
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Int
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model Reservation {
+  id        String   @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  expiresAt DateTime
+  active    Boolean  @default(true) // false once released/consumed
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
