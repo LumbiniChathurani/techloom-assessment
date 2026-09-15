@@ -35,7 +35,7 @@ npm install
 npx prisma generate
 ```
 Create a `.env` file with:
-DATABASE_URL=postgresql://neondb_owner:npg_UQqY05OraMoC@ep-purple-boat-aez17ocg-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+DATABASE_URL=URL
 
 Run:
 ```bash
